@@ -365,6 +365,115 @@ export function VoiceButton({
   );
 }
 
+/**
+ * A normal text box with a microphone beside it: speak, and your words are
+ * written into the box in your own language.
+ */
+export function VoiceTextInput({
+  value,
+  onChange,
+  placeholder,
+  lang = "hi",
+  multiline = false,
+  className,
+  inputMode,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  lang?: string;
+  multiline?: boolean;
+  className?: string;
+  inputMode?: "text" | "numeric";
+}) {
+  const { recording, seconds, level, start, stop } = useVoiceRecorder();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleMic = async () => {
+    setError(null);
+    if (!recording) {
+      const ok = await start();
+      if (!ok) setError("Microphone permission is needed. Allow it and tap again.");
+      return;
+    }
+    const clip = await stop();
+    if (!clip) {
+      setError("That was too short. Tap and speak for a few seconds.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { blobToBase64 } = await import("@/lib/use-voice-recorder");
+      const { transcribeBusinessVoice } = await import("@/lib/voice.functions");
+      const result = await transcribeBusinessVoice({
+        data: { audioBase64: await blobToBase64(clip), lang },
+      });
+      if (!result.text) setError("We could not hear any words. Please try again.");
+      else onChange(value ? `${value} ${result.text}`.trim() : result.text);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Voice failed. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-start gap-2">
+        {multiline ? (
+          <textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            rows={3}
+            className={cn(inputClass, "min-h-24 py-3", className)}
+          />
+        ) : (
+          <input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            inputMode={inputMode}
+            className={cn(inputClass, className)}
+          />
+        )}
+        <button
+          type="button"
+          onClick={busy ? undefined : () => void handleMic()}
+          aria-label={recording ? "Stop recording" : "Speak instead of typing"}
+          className={cn(
+            "grid size-12 shrink-0 place-items-center rounded-2xl transition-transform active:scale-95",
+            recording ? "bg-accent text-accent-foreground" : "bg-surface-2 ring-1 ring-line",
+            busy && "opacity-70",
+          )}
+        >
+          {busy ? (
+            <Sparkles className="size-[18px] animate-pulse" />
+          ) : recording ? (
+            <Square className="size-[18px]" />
+          ) : (
+            <Mic className="size-[18px]" />
+          )}
+        </button>
+      </div>
+      {recording ? (
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
+            <div
+              className="h-full rounded-full bg-accent transition-[width] duration-100"
+              style={{ width: `${Math.min(100, Math.round(level * 260))}%` }}
+            />
+          </div>
+          <span className="text-[11px] font-semibold text-accent">{seconds}s — tap to stop</span>
+        </div>
+      ) : null}
+      {busy ? <p className="text-[11px] text-muted-foreground">Writing your words…</p> : null}
+      {error ? <p className="text-[12px] font-semibold text-destructive">{error}</p> : null}
+    </div>
+  );
+}
+
 
 export function AiInsight({
   title,
