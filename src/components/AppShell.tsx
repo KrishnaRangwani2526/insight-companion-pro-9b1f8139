@@ -68,6 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { state, update } = useApp();
   const { online, syncing } = useOnline();
+  const tl = useLabel();
   const [moreOpen, setMoreOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
@@ -103,7 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
             <span>
               <span className="block text-[15px] font-bold leading-tight">Kalaa Setu</span>
-              <span className="block text-[11px] text-muted-foreground">Artisan business partner</span>
+              <span className="block text-[11px] text-muted-foreground">{tl("Artisan business partner")}</span>
             </span>
           </Link>
           {[...MAIN_LINKS, ...MORE_LINKS].map((l) => (
@@ -116,7 +117,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             >
               <l.icon className="size-[18px]" />
-              {l.label}
+              {tl(l.label)}
             </Link>
           ))}
         </aside>
@@ -178,7 +179,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             >
               {online ? <RefreshCw className="size-4 animate-spin" /> : <WifiOff className="size-4" />}
-              {online ? "Syncing your changes…" : "You're offline — your work is saved on this phone"}
+              {online
+                ? tl("Syncing your changes…")
+                : tl("You're offline — your work is saved on this phone")}
             </div>
           )}
 
@@ -221,7 +224,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Sparkles className="size-4" /> Ask AI
       </button>
 
-      <Sheet open={moreOpen} onClose={() => setMoreOpen(false)} title="All features">
+      <Sheet open={moreOpen} onClose={() => setMoreOpen(false)} title={tl("All features")}>
         <div className="grid grid-cols-2 gap-2.5">
           {MORE_LINKS.map((l) => (
             <Link
@@ -233,13 +236,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
                 <l.icon className="size-4" />
               </span>
-              {l.label}
+              <Bi>{l.label}</Bi>
             </Link>
           ))}
         </div>
       </Sheet>
 
-      <Sheet open={langOpen} onClose={() => setLangOpen(false)} title="Choose your language">
+      <Sheet open={langOpen} onClose={() => setLangOpen(false)} title={tl("Choose your language")}>
         <div className="grid grid-cols-2 gap-2.5">
           {LANGUAGES.map((l) => (
             <button
