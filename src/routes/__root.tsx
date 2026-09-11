@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppProvider } from "@/lib/store";
 import { registerPwa } from "@/lib/register-pwa";
+import { TranslationProvider } from "@/lib/translation";
 
 function NotFoundComponent() {
   return (

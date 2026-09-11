@@ -178,7 +178,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           )}
 
-          <main className="flex-1 space-y-5 px-5 pb-32 lg:px-0 lg:pb-16">{children}</main>
+          <main className="flex-1 space-y-5 px-5 pb-32 lg:px-0 lg:pb-16">
+            <AutoTranslate>{children}</AutoTranslate>
+          </main>
 
           {/* Mobile bottom nav */}
           <nav className="app-safe-bottom sticky bottom-0 z-30 px-4 lg:hidden">
