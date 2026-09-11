@@ -1,0 +1,57 @@
+DATABASE CONNECTION REQUIREMENTS FOR AI-LABELLED PRODUCTS
+
+Current state
+- No database is connected.
+- Products are currently stored only in the browser's local storage.
+- Uploaded/camera photos are resized in the browser and saved with the local product record.
+- Clearing browser data or using another device will remove or hide those locally saved records.
+
+Connect these parts when a database is added
+
+1. Authentication and ownership
+- Require a signed-in user before saving a product.
+- Every product row must include owner_id linked to the authenticated user.
+- Access rules must allow users to read, create, update, and delete only their own products.
+
+2. Product images
+- Create a private product-images storage bucket.
+- Upload the original or compressed product photo to a path scoped by owner_id.
+- Store the resulting storage path in the product row; do not store large base64 image strings in the database.
+- Use short-lived signed URLs when displaying private images.
+
+3. Products table
+Recommended fields:
+- id: UUID primary key
+- owner_id: UUID, required
+- name: text, required
+- category: text, required
+- material: text
+- colour: text
+- size: text
+- description_short: text
+- description_full: text
+- description_hindi: text
+- description_english: text
+- keywords: text array
+- price: numeric
+- cost: numeric
+- stock: integer
+- reorder_level: integer
+- status: active or draft
+- image_path: text
+- ai_labelled: boolean
+- ai_model: text
+- ai_labelled_at: timestamp
+- created_at and updated_at: timestamps
+
+4. Save flow to connect
+- In src/routes/products.add.tsx, replace the current browser-only addProduct save with an authenticated server function.
+- The server function should upload the photo first, then insert the product and its AI labels in one controlled operation.
+- If image upload or product insertion fails, show the returned error and do not report the product as saved.
+- Keep all generated fields editable before saving, as they are now.
+
+5. Security and validation
+- Revalidate all incoming fields on the server.
+- Restrict file types to supported images and enforce a file-size limit.
+- Never trust owner_id supplied by the browser; derive it from the authenticated session.
+- Record which values came from AI so they can be reviewed or corrected later.
