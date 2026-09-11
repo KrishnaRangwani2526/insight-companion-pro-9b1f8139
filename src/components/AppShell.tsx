@@ -302,11 +302,15 @@ export function AssistantSheet({
   onClose: () => void;
   lang: LangCode;
 }) {
+  const tl = useLabel();
   const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
     { role: "ai", text: "Namaste 🙏 Ask me anything about your business — price, ads, stock, loans or sales." },
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [transcribing, setTranscribing] = useState(false);
+  const { recording, seconds, level, start, stop } = useVoiceRecorder();
 
   const send = async (text: string) => {
     if (!text.trim() || busy) return;
@@ -318,8 +322,36 @@ export function AssistantSheet({
     setBusy(false);
   };
 
+  const handleMic = async () => {
+    setVoiceError(null);
+    if (!recording) {
+      const ok = await start();
+      if (!ok) setVoiceError(tl("Microphone permission is needed. Allow it and tap again."));
+      return;
+    }
+    const clip = await stop();
+    if (!clip) {
+      setVoiceError(tl("That was too short. Tap and speak for a few seconds."));
+      return;
+    }
+    setTranscribing(true);
+    try {
+      const { blobToBase64 } = await import("@/lib/use-voice-recorder");
+      const { transcribeBusinessVoice } = await import("@/lib/voice.functions");
+      const result = await transcribeBusinessVoice({
+        data: { audioBase64: await blobToBase64(clip), lang },
+      });
+      if (!result.text) setVoiceError(tl("We could not hear any words. Please try again."));
+      else await send(result.text);
+    } catch (e) {
+      setVoiceError(e instanceof Error ? e.message : tl("Voice failed. Please try again."));
+    } finally {
+      setTranscribing(false);
+    }
+  };
+
   return (
-    <Sheet open={open} onClose={onClose} title="Ask your AI helper">
+    <Sheet open={open} onClose={onClose} title={tl("Ask your AI helper")}>
       <div className="max-h-[45vh] space-y-3 overflow-y-auto pr-1">
         {messages.map((m, i) => (
           <div
@@ -331,7 +363,7 @@ export function AssistantSheet({
                 : "ml-auto bg-primary text-primary-foreground",
             )}
           >
-            {m.text}
+            {m.role === "ai" ? <Bi>{m.text}</Bi> : m.text}
           </div>
         ))}
         {busy ? <div className="shimmer h-9 w-40 rounded-2xl bg-surface-2" /> : null}
@@ -340,10 +372,10 @@ export function AssistantSheet({
         {SUGGESTIONS.map((s) => (
           <button
             key={s}
-            onClick={() => send(s)}
-            className="rounded-full bg-surface-2 px-3 py-1.5 text-[12px] font-medium ring-1 ring-line"
+            onClick={() => void send(s)}
+            className="rounded-full bg-surface-2 px-3 py-1.5 text-left text-[12px] font-medium ring-1 ring-line"
           >
-            {s}
+            <Bi>{s}</Bi>
           </button>
         ))}
       </div>
@@ -357,21 +389,40 @@ export function AssistantSheet({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={lang === "hi" ? "बोलिए या लिखिए…" : "Type your question…"}
+          placeholder={
+            recording
+              ? `${tl("Listening")}… ${seconds}s`
+              : transcribing
+                ? tl("Writing your words…")
+                : tl("Speak or type your question…")
+          }
           className="min-h-12 flex-1 rounded-2xl bg-surface-2 px-4 text-[14px] outline-none ring-1 ring-line focus:ring-2 focus:ring-ring"
         />
         <button
           type="button"
-          onClick={() => void send("Which product should I promote?")}
-          className="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground"
-          aria-label="Speak"
+          onClick={transcribing ? undefined : () => void handleMic()}
+          className={cn(
+            "grid size-12 shrink-0 place-items-center rounded-2xl transition-transform active:scale-95",
+            recording ? "bg-destructive text-white" : "bg-accent text-accent-foreground",
+            transcribing && "opacity-70",
+          )}
+          aria-label={recording ? "Stop recording" : "Speak"}
         >
-          <Mic className="size-5" />
+          {recording ? <Square className="size-5" /> : <Mic className="size-5" />}
         </button>
         <ActionButton type="submit" className="grid size-12 shrink-0 place-items-center px-0">
           <Send className="size-5" />
         </ActionButton>
       </form>
+      {recording ? (
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+          <div
+            className="h-full rounded-full bg-accent transition-[width] duration-100"
+            style={{ width: `${Math.min(100, Math.round(level * 260))}%` }}
+          />
+        </div>
+      ) : null}
+      {voiceError ? <p className="mt-2 text-[12px] font-semibold text-destructive">{voiceError}</p> : null}
       <button onClick={onClose} className="sr-only">
         <X className="size-4" /> Close
       </button>
