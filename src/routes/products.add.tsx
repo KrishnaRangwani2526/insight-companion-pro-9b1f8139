@@ -74,18 +74,37 @@ function AddProduct() {
         const image = new Image();
         image.onerror = () => reject(new Error("Please choose a valid JPG, PNG, or WebP image."));
         image.onload = () => {
-          const longestSide = 1200;
-          const scale = Math.min(1, longestSide / Math.max(image.width, image.height));
-          const canvas = document.createElement("canvas");
-          canvas.width = Math.max(1, Math.round(image.width * scale));
-          canvas.height = Math.max(1, Math.round(image.height * scale));
-          const context = canvas.getContext("2d");
-          if (!context) {
+          // The AI service accepts photos up to ~1.5 MB, so shrink until it fits.
+          const LIMIT = 1_400_000;
+          const render = (longestSide: number, quality: number) => {
+            const scale = Math.min(1, longestSide / Math.max(image.width, image.height));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+            const context = canvas.getContext("2d");
+            if (!context) return null;
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL("image/jpeg", quality);
+          };
+
+          let output = render(1200, 0.82);
+          if (!output) {
             reject(new Error("This browser could not prepare the photo."));
             return;
           }
-          context.drawImage(image, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL("image/jpeg", 0.82));
+          for (const [side, quality] of [
+            [1000, 0.75],
+            [800, 0.7],
+            [640, 0.6],
+          ] as const) {
+            if (output.length <= LIMIT) break;
+            output = render(side, quality) ?? output;
+          }
+          if (output.length > LIMIT) {
+            reject(new Error("This photo is too detailed. Please try a smaller photo."));
+            return;
+          }
+          resolve(output);
         };
         image.src = source;
       };
