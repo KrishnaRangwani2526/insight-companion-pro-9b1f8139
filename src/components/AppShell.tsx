@@ -23,6 +23,7 @@ import {
   WifiOff,
   RefreshCw,
   Mic,
+  Square,
   Send,
   X,
   ChevronLeft,
@@ -34,6 +35,9 @@ import { LANGUAGES, t } from "@/lib/i18n";
 import type { LangCode } from "@/lib/types";
 import { aiService } from "@/services/aiService";
 import { Sheet, ActionButton } from "./ui-kit";
+import { AutoTranslate } from "./AutoTranslate";
+import { Bi, useLabel } from "./Bi";
+import { useVoiceRecorder } from "@/lib/use-voice-recorder";
 
 const MORE_LINKS = [
   { to: "/inventory", label: "Inventory", icon: Boxes },
