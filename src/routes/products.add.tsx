@@ -12,6 +12,7 @@ import {
   ProcessingBar,
   SectionLabel,
   VoiceButton,
+  VoiceTextInput,
   inputClass,
   productImage,
   Badge,
@@ -304,7 +305,12 @@ function AddProduct() {
         <SectionLabel>Step 2 · Product details</SectionLabel>
         <div className="space-y-3">
           <Field label="Product name">
-            <input className={inputClass} value={form.name} onChange={(e) => set({ name: e.target.value })} placeholder="Handwoven cotton shawl" />
+            <VoiceTextInput
+              value={form.name}
+              onChange={(name) => set({ name })}
+              placeholder="Handwoven cotton shawl"
+              lang={state.business.language}
+            />
           </Field>
           <Field label="Category">
             <select className={inputClass} value={form.category} onChange={(e) => set({ category: e.target.value })}>
@@ -313,16 +319,32 @@ function AddProduct() {
               ))}
             </select>
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Material">
-              <input className={inputClass} value={form.material} onChange={(e) => set({ material: e.target.value })} placeholder="Cotton" />
+              <VoiceTextInput
+                value={form.material}
+                onChange={(material) => set({ material })}
+                placeholder="Cotton"
+                lang={state.business.language}
+              />
             </Field>
             <Field label="Size">
-              <input className={inputClass} value={form.size} onChange={(e) => set({ size: e.target.value })} placeholder="2m × 1m" />
+              <VoiceTextInput
+                value={form.size}
+                onChange={(size) => set({ size })}
+                placeholder="2m × 1m"
+                lang={state.business.language}
+              />
             </Field>
             <Field label="Colour">
-              <input className={inputClass} value={form.colour} onChange={(e) => set({ colour: e.target.value })} placeholder="Indigo" />
+              <VoiceTextInput
+                value={form.colour}
+                onChange={(colour) => set({ colour })}
+                placeholder="Indigo"
+                lang={state.business.language}
+              />
             </Field>
+
             <Field label="Quantity you have">
               <input className={inputClass} inputMode="numeric" value={form.quantity} onChange={(e) => set({ quantity: e.target.value })} />
             </Field>
