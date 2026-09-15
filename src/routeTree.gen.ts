@@ -18,6 +18,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as LearningRouteImport } from './routes/learning'
 import { Route as LogisticsRouteImport } from './routes/logistics'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OneTapRouteImport } from './routes/one-tap'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as PresenceRouteImport } from './routes/presence'
 import { Route as AdvisorIndexRouteImport } from './routes/advisor.index'
@@ -89,6 +90,11 @@ const LogisticsRoute = LogisticsRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OneTapRoute = OneTapRouteImport.update({
+  id: '/one-tap',
+  path: '/one-tap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrdersRoute = OrdersRouteImport.update({
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/learning': typeof LearningRoute
   '/logistics': typeof LogisticsRoute
   '/notifications': typeof NotificationsRoute
+  '/one-tap': typeof OneTapRoute
   '/orders': typeof OrdersRoute
   '/presence': typeof PresenceRoute
   '/advisor/competitors': typeof AdvisorCompetitorsRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/learning': typeof LearningRoute
   '/logistics': typeof LogisticsRoute
   '/notifications': typeof NotificationsRoute
+  '/one-tap': typeof OneTapRoute
   '/orders': typeof OrdersRoute
   '/presence': typeof PresenceRoute
   '/advisor/competitors': typeof AdvisorCompetitorsRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/learning': typeof LearningRoute
   '/logistics': typeof LogisticsRoute
   '/notifications': typeof NotificationsRoute
+  '/one-tap': typeof OneTapRoute
   '/orders': typeof OrdersRoute
   '/presence': typeof PresenceRoute
   '/advisor/competitors': typeof AdvisorCompetitorsRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/learning'
     | '/logistics'
     | '/notifications'
+    | '/one-tap'
     | '/orders'
     | '/presence'
     | '/advisor/competitors'
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/learning'
     | '/logistics'
     | '/notifications'
+    | '/one-tap'
     | '/orders'
     | '/presence'
     | '/advisor/competitors'
@@ -430,6 +441,7 @@ export interface FileRouteTypes {
     | '/learning'
     | '/logistics'
     | '/notifications'
+    | '/one-tap'
     | '/orders'
     | '/presence'
     | '/advisor/competitors'
@@ -469,6 +481,7 @@ export interface RootRouteChildren {
   LearningRoute: typeof LearningRoute
   LogisticsRoute: typeof LogisticsRoute
   NotificationsRoute: typeof NotificationsRoute
+  OneTapRoute: typeof OneTapRoute
   OrdersRoute: typeof OrdersRoute
   PresenceRoute: typeof PresenceRoute
   AdvisorCompetitorsRoute: typeof AdvisorCompetitorsRoute
@@ -561,6 +574,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/one-tap': {
+      id: '/one-tap'
+      path: '/one-tap'
+      fullPath: '/one-tap'
+      preLoaderRoute: typeof OneTapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orders': {
@@ -765,6 +785,7 @@ const rootRouteChildren: RootRouteChildren = {
   LearningRoute: LearningRoute,
   LogisticsRoute: LogisticsRoute,
   NotificationsRoute: NotificationsRoute,
+  OneTapRoute: OneTapRoute,
   OrdersRoute: OrdersRoute,
   PresenceRoute: PresenceRoute,
   AdvisorCompetitorsRoute: AdvisorCompetitorsRoute,
