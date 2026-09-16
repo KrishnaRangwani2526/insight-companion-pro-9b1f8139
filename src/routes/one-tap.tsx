@@ -137,8 +137,14 @@ function OneTap() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    if (!file.type.startsWith("image/")) return toast.error("Please choose an image file.");
-    if (file.size > 15 * 1024 * 1024) return toast.error("That photo is too large. Please choose one under 15 MB.");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("That photo is too large. Please choose one under 15 MB.");
+      return;
+    }
     try {
       setPhoto(await prepareImage(file));
       setError(null);
