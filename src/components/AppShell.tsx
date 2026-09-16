@@ -40,6 +40,7 @@ import { Bi, useLabel } from "./Bi";
 import { useVoiceRecorder } from "@/lib/use-voice-recorder";
 
 const MORE_LINKS = [
+  { to: "/one-tap", label: "One Tap AI", icon: Sparkles },
   { to: "/inventory", label: "Inventory", icon: Boxes },
   { to: "/marketing", label: "Marketing", icon: Megaphone },
   { to: "/finance", label: "Finance", icon: Wallet },
