@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Camera, Upload, Mic, Square, Sparkles, Check } from "lucide-react";
+import { Camera, Upload, Mic, Square, Sparkles, Check, Wand2 } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
