@@ -111,39 +111,44 @@ function OneTap() {
   const lang = state.business.language;
   const setField = (patch: Partial<OneTapFields>) => setFields((f) => ({ ...f, ...patch }));
 
+  const shrinkSrc = (src: string) =>
+    new Promise<string>((resolve, reject) => {
+      const image = new Image();
+      image.onerror = () => reject(new Error("Please choose a valid JPG, PNG or WebP image."));
+      image.onload = () => {
+        const LIMIT = 1_400_000;
+        const render = (longest: number, quality: number) => {
+          const scale = Math.min(1, longest / Math.max(image.width, image.height));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.width * scale));
+          canvas.height = Math.max(1, Math.round(image.height * scale));
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return null;
+          ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+          return canvas.toDataURL("image/jpeg", quality);
+        };
+        let out = render(1200, 0.82);
+        if (!out) return reject(new Error("This browser could not prepare the photo."));
+        for (const [side, q] of [
+          [1000, 0.75],
+          [800, 0.7],
+          [640, 0.6],
+        ] as const) {
+          if (out.length <= LIMIT) break;
+          out = render(side, q) ?? out;
+        }
+        if (out.length > LIMIT) return reject(new Error("This photo is too detailed. Please try a smaller photo."));
+        resolve(out);
+      };
+      image.src = src;
+    });
+
   const prepareImage = (file: File) =>
     new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onerror = () => reject(new Error("This photo could not be read."));
       reader.onload = () => {
-        const image = new Image();
-        image.onerror = () => reject(new Error("Please choose a valid JPG, PNG or WebP image."));
-        image.onload = () => {
-          const LIMIT = 1_400_000;
-          const render = (longest: number, quality: number) => {
-            const scale = Math.min(1, longest / Math.max(image.width, image.height));
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.max(1, Math.round(image.width * scale));
-            canvas.height = Math.max(1, Math.round(image.height * scale));
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return null;
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-            return canvas.toDataURL("image/jpeg", quality);
-          };
-          let out = render(1200, 0.82);
-          if (!out) return reject(new Error("This browser could not prepare the photo."));
-          for (const [side, q] of [
-            [1000, 0.75],
-            [800, 0.7],
-            [640, 0.6],
-          ] as const) {
-            if (out.length <= LIMIT) break;
-            out = render(side, q) ?? out;
-          }
-          if (out.length > LIMIT) return reject(new Error("This photo is too detailed. Please try a smaller photo."));
-          resolve(out);
-        };
-        image.src = typeof reader.result === "string" ? reader.result : "";
+        shrinkSrc(typeof reader.result === "string" ? reader.result : "").then(resolve, reject);
       };
       reader.readAsDataURL(file);
     });
@@ -162,9 +167,95 @@ function OneTap() {
     }
     try {
       setPhoto(await prepareImage(file));
+      setEnhanced(null);
       setError(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Photo could not be used.");
+    }
+  };
+
+  const runEnhancePhoto = async () => {
+    if (!photo) {
+      toast.error("Add a photo first.");
+      return;
+    }
+    setEnhancing(true);
+    try {
+      const out = await enhancePhoto({ data: { imageDataUrl: photo, style: "studio" } });
+      const small = await shrinkSrc(out.imageDataUrl);
+      setEnhanced(small);
+      setUseEnhanced(true);
+      toast.success("Photo improved", { description: "Compare both and keep the one you like." });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Photo could not be improved.";
+      toast.error("Photo enhancement failed", { description: message });
+    } finally {
+      setEnhancing(false);
+    }
+  };
+
+  const handleDescMic = async () => {
+    if (!descRecorder.recording) {
+      const ok = await descRecorder.start();
+      if (!ok) toast.error("Microphone permission is needed. Allow it and tap again.");
+      return;
+    }
+    const clip = await descRecorder.stop();
+    if (!clip) {
+      toast.error("That was too short. Tap and speak for a few seconds.");
+      return;
+    }
+    setDescVoiceBusy(true);
+    try {
+      const out = await transcribe({ data: { audioBase64: await blobToBase64(clip), lang } });
+      if (!out.text) toast.error("We could not hear any words. Please try again.");
+      else setDescNote((prev) => (prev ? `${prev} ${out.text}`.trim() : out.text));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Voice failed. Please try again.");
+    } finally {
+      setDescVoiceBusy(false);
+    }
+  };
+
+  const runDescription = async () => {
+    const spoken = [localText.trim(), descNote.trim()].filter(Boolean).join(" ");
+    if (!spoken && !photo && !fields.name) {
+      toast.error("Speak about the product first.");
+      return;
+    }
+    setWriting(true);
+    try {
+      const facts: Record<string, string> = {
+        name: fields.name,
+        category: fields.category,
+        material: fields.material,
+        colour: fields.colour,
+        size: fields.size,
+        weight: fields.weight,
+        useCase: fields.useCase,
+        howMade: fields.howMade,
+        craftOrigin: fields.craftOrigin,
+        care: fields.care,
+        priceIdea: fields.priceIdea,
+      };
+      const out = await writeDescription({
+        data: {
+          ...(spoken ? { rawText: spoken } : {}),
+          facts,
+          ...(photo ? { imageDataUrl: enhanced ?? photo } : {}),
+        },
+      });
+      setSeo(out);
+      setField({
+        description: out.seoDescription || fields.description,
+        keywords: out.keywords.length ? out.keywords : fields.keywords,
+      });
+      toast.success("Description ready", { description: "SEO-friendly copy written from your words." });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Please try again.";
+      toast.error("Description could not be written", { description: message });
+    } finally {
+      setWriting(false);
     }
   };
 
