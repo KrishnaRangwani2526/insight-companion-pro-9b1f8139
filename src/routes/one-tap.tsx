@@ -562,6 +562,112 @@ function OneTap() {
             </div>
           </Card>
 
+          <Card delay={210}>
+            <SectionLabel>Better description — speak, AI writes it for selling</SectionLabel>
+            <p className="mb-3 text-[13px] text-muted-foreground">
+              Tell AI anything more about this product in your own language — story, quality, use. AI turns it into a
+              search-friendly listing.
+            </p>
+            <div className="flex items-start gap-2">
+              <textarea
+                value={descNote}
+                onChange={(e) => setDescNote(e.target.value)}
+                rows={3}
+                placeholder="Tap the mic and describe your product"
+                className={cn(inputClass, "min-h-24 py-3")}
+              />
+              <button
+                type="button"
+                onClick={descVoiceBusy ? undefined : () => void handleDescMic()}
+                aria-label={descRecorder.recording ? "Stop recording" : "Speak your description"}
+                className={cn(
+                  "grid size-12 shrink-0 place-items-center rounded-2xl transition-transform active:scale-95",
+                  descRecorder.recording ? "bg-accent text-accent-foreground" : "bg-surface-2 ring-1 ring-line",
+                  descVoiceBusy && "opacity-70",
+                )}
+              >
+                {descVoiceBusy ? (
+                  <Sparkles className="size-[18px] animate-pulse" />
+                ) : descRecorder.recording ? (
+                  <Square className="size-[18px]" />
+                ) : (
+                  <Mic className="size-[18px]" />
+                )}
+              </button>
+            </div>
+            {descRecorder.recording ? (
+              <div className="mt-2 flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
+                  <div
+                    className="h-full rounded-full bg-accent transition-[width] duration-100"
+                    style={{ width: `${Math.min(100, Math.round(descRecorder.level * 260))}%` }}
+                  />
+                </div>
+                <span className="text-[11px] font-semibold text-accent">{descRecorder.seconds}s — tap to stop</span>
+              </div>
+            ) : null}
+            {descVoiceBusy ? <p className="mt-2 text-[11px] text-muted-foreground">Writing your words…</p> : null}
+
+            <ActionButton onClick={() => void runDescription()} className="mt-3 w-full" disabled={writing}>
+              <Wand2 className="mr-1.5 inline size-4" />
+              {writing ? "Writing your listing…" : "Enhance description with AI"}
+            </ActionButton>
+            {writing ? (
+              <div className="mt-3">
+                <ProcessingBar label="Turning your words into a selling description…" />
+              </div>
+            ) : null}
+
+            {seo ? (
+              <div className="mt-3 space-y-3">
+                <Field label="Listing title">
+                  <VoiceTextInput value={seo.seoTitle} onChange={(seoTitle) => setSeo({ ...seo, seoTitle })} lang={lang} />
+                </Field>
+                <Field label="Short line for product cards">
+                  <VoiceTextInput
+                    value={seo.shortDescription}
+                    onChange={(shortDescription) => setSeo({ ...seo, shortDescription })}
+                    multiline
+                    lang={lang}
+                  />
+                </Field>
+                <Field label="Full selling description">
+                  <VoiceTextInput
+                    value={seo.seoDescription}
+                    onChange={(seoDescription) => {
+                      setSeo({ ...seo, seoDescription });
+                      setField({ description: seoDescription });
+                    }}
+                    multiline
+                    lang={lang}
+                  />
+                </Field>
+                {seo.bullets.length ? (
+                  <div>
+                    <p className="mb-1.5 text-[12px] font-semibold text-muted-foreground">Highlights</p>
+                    <ul className="space-y-1">
+                      {seo.bullets.map((b) => (
+                        <li key={b} className="flex gap-2 text-[13px] leading-relaxed">
+                          <Check className="mt-0.5 size-3.5 shrink-0 text-good" /> {b}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {seo.hashtags.length ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {seo.hashtags.map((h) => (
+                      <Badge key={h} tone="accent">
+                        {h}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </Card>
+
+
           <ActionButton onClick={save} className="w-full">
             Save product
           </ActionButton>
