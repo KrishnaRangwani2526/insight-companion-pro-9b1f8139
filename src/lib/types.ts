@@ -20,6 +20,8 @@ export interface Product {
   reorderLevel: number;
   sold: number;
   image: string;
+  /** AI-enhanced studio version of the photo (data URL), when the seller made one. */
+  enhancedImage?: string;
   status: "active" | "draft";
   description?: string;
   material?: string;
@@ -28,6 +30,20 @@ export interface Product {
   keywords?: string[];
   aiLabelled?: boolean;
   bestSeller?: boolean;
+  /* SEO / catalogue copy written by AI */
+  seoTitle?: string;
+  shortDescription?: string;
+  seoDescription?: string;
+  bullets?: string[];
+  hashtags?: string[];
+  metaDescription?: string;
+  /* Extra product knowledge captured by One Tap AI */
+  weight?: string;
+  useCase?: string;
+  howMade?: string;
+  craftOrigin?: string;
+  care?: string;
+  listedOnESetu?: boolean;
 }
 
 export interface Order {

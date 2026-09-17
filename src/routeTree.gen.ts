@@ -15,6 +15,7 @@ import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as CustomersRouteImport } from './routes/customers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ESetuRouteImport } from './routes/e-setu'
 import { Route as LearningRouteImport } from './routes/learning'
 import { Route as LogisticsRouteImport } from './routes/logistics'
 import { Route as NotificationsRouteImport } from './routes/notifications'
@@ -75,6 +76,11 @@ const CustomersRoute = CustomersRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ESetuRoute = ESetuRouteImport.update({
+  id: '/e-setu',
+  path: '/e-setu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearningRoute = LearningRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/business': typeof BusinessRoute
   '/customers': typeof CustomersRoute
   '/dashboard': typeof DashboardRoute
+  '/e-setu': typeof ESetuRoute
   '/learning': typeof LearningRoute
   '/logistics': typeof LogisticsRoute
   '/notifications': typeof NotificationsRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/business': typeof BusinessRoute
   '/customers': typeof CustomersRoute
   '/dashboard': typeof DashboardRoute
+  '/e-setu': typeof ESetuRoute
   '/learning': typeof LearningRoute
   '/logistics': typeof LogisticsRoute
   '/notifications': typeof NotificationsRoute
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/business': typeof BusinessRoute
   '/customers': typeof CustomersRoute
   '/dashboard': typeof DashboardRoute
+  '/e-setu': typeof ESetuRoute
   '/learning': typeof LearningRoute
   '/logistics': typeof LogisticsRoute
   '/notifications': typeof NotificationsRoute
@@ -360,6 +369,7 @@ export interface FileRouteTypes {
     | '/business'
     | '/customers'
     | '/dashboard'
+    | '/e-setu'
     | '/learning'
     | '/logistics'
     | '/notifications'
@@ -399,6 +409,7 @@ export interface FileRouteTypes {
     | '/business'
     | '/customers'
     | '/dashboard'
+    | '/e-setu'
     | '/learning'
     | '/logistics'
     | '/notifications'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/business'
     | '/customers'
     | '/dashboard'
+    | '/e-setu'
     | '/learning'
     | '/logistics'
     | '/notifications'
@@ -478,6 +490,7 @@ export interface RootRouteChildren {
   BusinessRoute: typeof BusinessRoute
   CustomersRoute: typeof CustomersRoute
   DashboardRoute: typeof DashboardRoute
+  ESetuRoute: typeof ESetuRoute
   LearningRoute: typeof LearningRoute
   LogisticsRoute: typeof LogisticsRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -553,6 +566,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/e-setu': {
+      id: '/e-setu'
+      path: '/e-setu'
+      fullPath: '/e-setu'
+      preLoaderRoute: typeof ESetuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learning': {
@@ -782,6 +802,7 @@ const rootRouteChildren: RootRouteChildren = {
   BusinessRoute: BusinessRoute,
   CustomersRoute: CustomersRoute,
   DashboardRoute: DashboardRoute,
+  ESetuRoute: ESetuRoute,
   LearningRoute: LearningRoute,
   LogisticsRoute: LogisticsRoute,
   NotificationsRoute: NotificationsRoute,
