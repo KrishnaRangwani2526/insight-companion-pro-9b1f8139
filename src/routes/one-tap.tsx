@@ -322,6 +322,7 @@ function OneTap() {
   const save = () => {
     const price = Math.max(0, Math.round(Number(fields.priceIdea.replace(/[^\d.]/g, "")) || 0));
     const cost = price ? Math.round(price * 0.62) : 600;
+    const shownPhoto = (useEnhanced && enhanced) || photo;
     const p = addProduct({
       name: fields.name || "New product",
       category: CATEGORIES.includes(fields.category) ? fields.category : CATEGORIES[0]!,
@@ -330,16 +331,33 @@ function OneTap() {
       stock: Number(fields.quantity.replace(/[^\d]/g, "")) || 1,
       reorderLevel: 5,
       sold: 0,
-      image: photo ?? "shawl",
+      image: shownPhoto ?? "shawl",
+      ...(enhanced ? { enhancedImage: enhanced } : {}),
       status: "active",
       material: fields.material,
-      description: fields.description || localText,
+      description: fields.description || seo?.seoDescription || localText,
       colour: fields.colour,
       size: fields.size,
       keywords: fields.keywords,
       aiLabelled: true,
+      weight: fields.weight,
+      useCase: fields.useCase,
+      howMade: fields.howMade,
+      craftOrigin: fields.craftOrigin,
+      care: fields.care,
+      ...(seo
+        ? {
+            seoTitle: seo.seoTitle,
+            shortDescription: seo.shortDescription,
+            seoDescription: seo.seoDescription,
+            bullets: seo.bullets,
+            hashtags: seo.hashtags,
+            metaDescription: seo.metaDescription,
+          }
+        : {}),
+      listedOnESetu: true,
     });
-    toast.success("Product registered", { description: `${p.name} is now in your catalogue.` });
+    toast.success("Product registered", { description: `${p.name} is now in your catalogue and on E-Setu.` });
     navigate({ to: "/products/$id", params: { id: p.id } });
   };
 
