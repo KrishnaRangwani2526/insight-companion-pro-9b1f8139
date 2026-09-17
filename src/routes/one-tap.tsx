@@ -22,6 +22,11 @@ import { cn } from "@/lib/utils";
 import { useVoiceRecorder, blobToBase64 } from "@/lib/use-voice-recorder";
 import { transcribeBusinessVoice } from "@/lib/voice.functions";
 import { oneTapUnderstand, type OneTapFields, type OneTapResult } from "@/lib/one-tap.functions";
+import {
+  enhanceProductPhoto,
+  enhanceDescription,
+  type EnhancedDescription,
+} from "@/lib/enhance.functions";
 
 export const Route = createFileRoute("/one-tap")({
   head: () => ({
@@ -80,11 +85,17 @@ function OneTap() {
   const navigate = useNavigate();
   const understand = useServerFn(oneTapUnderstand);
   const transcribe = useServerFn(transcribeBusinessVoice);
+  const enhancePhoto = useServerFn(enhanceProductPhoto);
+  const writeDescription = useServerFn(enhanceDescription);
   const recorder = useVoiceRecorder();
+  const descRecorder = useVoiceRecorder();
   const cameraInput = useRef<HTMLInputElement>(null);
   const uploadInput = useRef<HTMLInputElement>(null);
 
   const [photo, setPhoto] = useState<string | null>(null);
+  const [enhanced, setEnhanced] = useState<string | null>(null);
+  const [useEnhanced, setUseEnhanced] = useState(true);
+  const [enhancing, setEnhancing] = useState(false);
   const [localText, setLocalText] = useState("");
   const [busyVoice, setBusyVoice] = useState(false);
   const [thinking, setThinking] = useState(false);
@@ -92,6 +103,10 @@ function OneTap() {
   const [fields, setFields] = useState<OneTapFields>(EMPTY);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
+  const [descNote, setDescNote] = useState("");
+  const [descVoiceBusy, setDescVoiceBusy] = useState(false);
+  const [writing, setWriting] = useState(false);
+  const [seo, setSeo] = useState<EnhancedDescription | null>(null);
 
   const lang = state.business.language;
   const setField = (patch: Partial<OneTapFields>) => setFields((f) => ({ ...f, ...patch }));
