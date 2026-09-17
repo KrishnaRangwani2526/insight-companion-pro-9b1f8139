@@ -376,17 +376,57 @@ function OneTap() {
         <input ref={cameraInput} type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => void choosePhoto(e)} />
         <input ref={uploadInput} type="file" accept="image/*" className="sr-only" onChange={(e) => void choosePhoto(e)} />
         {photo ? (
-          <div className="flex gap-3">
-            <img src={productImage(photo)} alt="Your product" width={640} height={640} className="size-28 rounded-2xl object-cover" />
-            <div className="flex flex-wrap items-start gap-2">
-              <ActionButton variant="soft" className="min-h-9 px-3 text-[12px]" onClick={() => cameraInput.current?.click()}>
-                <Camera className="mr-1 inline size-3.5" /> Retake
-              </ActionButton>
-              <ActionButton variant="soft" className="min-h-9 px-3 text-[12px]" onClick={() => uploadInput.current?.click()}>
-                <Upload className="mr-1 inline size-3.5" /> Replace
-              </ActionButton>
+          <>
+            <div className="flex gap-3">
+              <img src={productImage(photo)} alt="Your product" width={640} height={640} className="size-28 rounded-2xl object-cover" />
+              <div className="flex flex-wrap items-start gap-2">
+                <ActionButton variant="soft" className="min-h-9 px-3 text-[12px]" onClick={() => cameraInput.current?.click()}>
+                  <Camera className="mr-1 inline size-3.5" /> Retake
+                </ActionButton>
+                <ActionButton variant="soft" className="min-h-9 px-3 text-[12px]" onClick={() => uploadInput.current?.click()}>
+                  <Upload className="mr-1 inline size-3.5" /> Replace
+                </ActionButton>
+              </div>
             </div>
-          </div>
+            <ActionButton
+              variant="soft"
+              className="mt-3 w-full"
+              disabled={enhancing}
+              onClick={() => void runEnhancePhoto()}
+            >
+              <Wand2 className="mr-1.5 inline size-4" />
+              {enhancing ? "Improving your photo…" : enhanced ? "Improve again" : "Improve this photo with AI"}
+            </ActionButton>
+            {enhancing ? (
+              <div className="mt-3">
+                <ProcessingBar label="Cleaning the background and lighting…" />
+              </div>
+            ) : null}
+            {enhanced ? (
+              <div className="mt-3">
+                <p className="mb-2 text-[12px] font-semibold text-muted-foreground">Your photo vs AI improved</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setUseEnhanced(false)}
+                    className={cn("frost-tile p-2 text-left", !useEnhanced && "ring-2 ring-primary")}
+                  >
+                    <img src={productImage(photo)} alt="Original photo" width={640} height={640} className="h-28 w-full rounded-xl object-cover" />
+                    <span className="mt-1.5 block text-[12px] font-semibold">Original</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUseEnhanced(true)}
+                    className={cn("frost-tile p-2 text-left", useEnhanced && "ring-2 ring-primary")}
+                  >
+                    <img src={productImage(enhanced)} alt="AI improved photo" width={640} height={640} className="h-28 w-full rounded-xl object-cover" />
+                    <span className="mt-1.5 block text-[12px] font-semibold">AI improved</span>
+                  </button>
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">Tap the one you want to show buyers.</p>
+              </div>
+            ) : null}
+          </>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             <button type="button" onClick={() => cameraInput.current?.click()} className="frost-tile flex flex-col items-center gap-2 p-6 text-[14px] font-semibold">
