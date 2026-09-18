@@ -55,3 +55,15 @@ Recommended fields:
 - Restrict file types to supported images and enforce a file-size limit.
 - Never trust owner_id supplied by the browser; derive it from the authenticated session.
 - Record which values came from AI so they can be reviewed or corrected later.
+6. One Tap AI, enhanced photos and SEO descriptions (added later)
+- Extra product fields to persist: enhanced_image_path, seo_title, short_description, seo_description, bullets (text array), hashtags (text array), meta_description, weight, use_case, how_made, craft_origin, care, listed_on_esetu (boolean), source_language.
+- Store the AI-improved photo as a second object in the same product-images bucket (…/enhanced/…), keep the original; the app currently keeps both as data URLs in local storage.
+- Keep the artisan's spoken/typed local-language note and its English translation as one_tap_note_local and one_tap_note_english, plus the follow-up questions and answers as JSON, so a listing can be re-generated without re-recording.
+- Voice: audio clips are transcribed through the AI gateway and are NOT stored today. If transcripts must be kept, add a voice_notes table (id, owner_id, product_id, language, transcript, created_at) and keep audio out of the database or in a private bucket with a retention rule.
+- Translation cache: the app caches translated UI phrases in browser local storage. A shared translations table (source_text, lang, translated_text, unique on source_text+lang, public read) would remove repeat gateway calls across devices.
+
+7. E-Setu marketplace page
+- The buyer catalogue reads the same product rows; add a public, read-only view exposing only listed_on_esetu = true rows with safe columns (name, seo fields, price, image path, category, artisan display name/place) for anonymous buyers.
+- Artisan profile/shop data comes from the business profile (name, owner, village/district/state, about, verified) — needs its own table with owner_id.
+- Reviews are demo content today; a reviews table (id, product_id, buyer_name, place, rating 1-5, text, created_at, approved) is needed, with anonymous read of approved rows only.
+- Buyer enquiries are shown as a confirmation only; an enquiries table (id, product_id, artisan_id, buyer_name, buyer_phone, message, status, created_at) with insert-only anonymous access and artisan-only read is needed to make them real.
