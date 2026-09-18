@@ -60,15 +60,11 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
     if (Array.isArray(node)) {
       return node.map((child, index) => {
         const walked = walk(child as ReactNode, depth + 1, plain);
-        return typeof walked === "string" || isValidElement(walked) ? (
-          isValidElement(walked) ? (
-            walked
-          ) : (
-            <span key={`t-${index}`}>{walked}</span>
-          )
-        ) : (
-          walked
-        );
+        if (isValidElement(walked)) {
+          return walked.key != null ? walked : cloneElement(walked, { key: `t-${index}` });
+        }
+        if (typeof walked === "string") return <span key={`t-${index}`}>{walked}</span>;
+        return walked;
       });
     }
 
