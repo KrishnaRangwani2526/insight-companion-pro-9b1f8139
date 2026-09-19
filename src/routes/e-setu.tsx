@@ -21,6 +21,7 @@ import {
   PageHeader,
   SectionLabel,
   Sheet,
+  VoiceTextInput,
   inputClass,
   productImage,
 } from "@/components/ui-kit";
@@ -282,12 +283,12 @@ function ESetu() {
             </div>
             <div>
               <p className="mb-1.5 text-[12px] font-semibold text-muted-foreground">Ask the artisan</p>
-              <textarea
+              <VoiceTextInput
                 value={enquiry}
-                onChange={(e) => setEnquiry(e.target.value)}
-                rows={3}
+                onChange={setEnquiry}
+                multiline
                 placeholder="Can you make this in a different colour?"
-                className={cn(inputClass, "min-h-20 py-3")}
+                lang={business.language}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">

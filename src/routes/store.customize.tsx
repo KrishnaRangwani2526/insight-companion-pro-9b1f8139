@@ -3,7 +3,7 @@ import { Palette, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { ActionButton, Card, Field, PageHeader, SectionLabel, inputClass, productImage } from "@/components/ui-kit";
+import { ActionButton, Card, Field, PageHeader, SectionLabel, VoiceTextInput, inputClass, productImage } from "@/components/ui-kit";
 import { useApp } from "@/lib/store";
 import type { StoreConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -69,10 +69,14 @@ function CustomizeStore() {
         <SectionLabel>Shop text</SectionLabel>
         <div className="space-y-3">
           <Field label="Tagline">
-            <input className={inputClass} value={draft.tagline} onChange={(e) => setDraft({ ...draft, tagline: e.target.value })} />
+            <VoiceTextInput
+              value={draft.tagline}
+              onChange={(tagline) => setDraft({ ...draft, tagline })}
+              lang={state.business.language}
+            />
           </Field>
           <Field label="About your business">
-            <textarea rows={4} className={inputClass + " py-3"} value={about} onChange={(e) => setAbout(e.target.value)} />
+            <VoiceTextInput value={about} onChange={setAbout} multiline lang={state.business.language} />
           </Field>
           <Field label="WhatsApp number">
             <input className={inputClass} inputMode="tel" value={draft.whatsapp} onChange={(e) => setDraft({ ...draft, whatsapp: e.target.value })} />
