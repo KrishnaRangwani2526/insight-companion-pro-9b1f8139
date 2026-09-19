@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Bi } from "@/components/Bi";
-import { ActionButton, Badge, Card, Field, PageHeader, SectionLabel, Sheet, inputClass } from "@/components/ui-kit";
+import { ActionButton, Badge, Card, Field, PageHeader, SectionLabel, Sheet, VoiceTextInput, inputClass } from "@/components/ui-kit";
 import { useApp } from "@/lib/store";
 
 export const Route = createFileRoute("/business")({
@@ -110,11 +110,11 @@ function BusinessPage() {
             <input className={inputClass} value={draft.district} onChange={(e) => setDraft({ ...draft, district: e.target.value })} />
           </Field>
           <Field label="About your business">
-            <textarea
-              rows={3}
-              className={inputClass + " py-3"}
+            <VoiceTextInput
               value={draft.about}
-              onChange={(e) => setDraft({ ...draft, about: e.target.value })}
+              onChange={(about) => setDraft({ ...draft, about })}
+              multiline
+              lang={b.language}
             />
           </Field>
           <ActionButton className="w-full" onClick={save}>
