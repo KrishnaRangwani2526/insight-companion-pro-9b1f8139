@@ -27,6 +27,7 @@
 - [x] Real camera/upload product photo capture and AI labelling
 - [x] Database connection notes for labelled product records
 - [x] One Tap AI: photo + local-language voice fills the whole registration
-- [ ] One Tap AI: AI photo enhancement + AI SEO description from voice
-- [ ] Bilingual (chosen language + English) verified on every page
-- [ ] New E-Setu page: buyer–artisan marketplace fed by product catalogue, enhanced photos and descriptions, artisan profile and reviews, in the chosen language
+- [x] One Tap AI: AI photo enhancement + AI SEO description from voice
+- [x] Bilingual (chosen language + English) verified on every page
+- [x] New E-Setu page: buyer–artisan marketplace fed by product catalogue, enhanced photos and descriptions, artisan profile and reviews, in the chosen language
+- [x] Voice input added to business profile, shop text and buyer enquiry boxes
